@@ -48,7 +48,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update(): void {
-        this.touchpad.handleInputs(this);
+        
     }
 }
   
