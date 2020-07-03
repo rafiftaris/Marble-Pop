@@ -33,10 +33,8 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         
         var random = Math.round(Math.random()*7);
         this.marbleShoot = this.marbleManager.getMarbleFromGroup(random);
-        this.marbleShoot.setPosition(scene.cameras.main.width/2,350);
-        this.marbleShoot.depth = 1;
-        this.marbleShoot.setBounce(1,1);
-        this.marbleShoot.setCollideWorldBounds(true);
+        this.marbleShoot.setShootingMarbleSetting(scene, this.marbleShoot.colorList[random]);
+        
 
         this.arrow = new Phaser.GameObjects.Image(scene,scene.cameras.main.width/2,350,"arrow");
         this.arrow.setScale(0.4);
@@ -68,24 +66,15 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
             return;
         }
         this.onAim = true;
-        this.arrowBody.setTo(scene.cameras.main.width/2,350,this.pointer.x,this.pointer.y);
-        var angle = Math.atan2(this.pointer.y-350,this.pointer.x-scene.cameras.main.width/2);
-        this.arrow.setAngle(radToDeg(angle)-90);
-        this.marbleShoot.setAngle(radToDeg(angle)-90);
-        this.arrowGraphics.lineStyle(5, 0x008000, 1);
-        this.arrowGraphics.strokeLineShape(this.arrowBody);
+        this.aimingMarble(scene);
     }
 
     dragAim(scene: Phaser.Scene): void{
 
         if(this.onAim && this.pointer.y > TOUCH_BOUNDARY){
             this.arrowGraphics.clear();
-            this.arrowBody.setTo(scene.cameras.main.width/2,350,this.pointer.x,this.pointer.y);
-            var angle = Math.atan2(this.pointer.y-350,this.pointer.x-scene.cameras.main.width/2);
-            this.arrow.setAngle(radToDeg(angle)-90);
-            this.marbleShoot.setAngle(radToDeg(angle)-90);
-            this.arrowGraphics.lineStyle(5, 0x008000, 1);
-            this.arrowGraphics.strokeLineShape(this.arrowBody);
+            this.aimingMarble(scene);
+            
         } else {
             this.onAim = false;
         }
@@ -96,5 +85,14 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         var deltaY = (this.pointer.y-350)*-1;
         var vectorLength = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
         this.marbleShoot.setVelocity((deltaX/vectorLength)*SHOOT_SPEED,(deltaY/vectorLength)*SHOOT_SPEED);
+    }
+
+    aimingMarble(scene: Phaser.Scene): void {
+        this.arrowBody.setTo(scene.cameras.main.width/2,350,this.pointer.x,this.pointer.y);
+        var angle = Math.atan2(this.pointer.y-350,this.pointer.x-scene.cameras.main.width/2);
+        this.arrow.setAngle(radToDeg(angle)-90);
+        this.marbleShoot.setAngle(radToDeg(angle)-90);
+        this.arrowGraphics.lineStyle(5, 0x008000, 1);
+        this.arrowGraphics.strokeLineShape(this.arrowBody);
     }
 }

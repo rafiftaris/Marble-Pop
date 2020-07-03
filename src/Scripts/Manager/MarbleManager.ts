@@ -1,7 +1,6 @@
 import * as Phaser from "phaser";
 import Marble from "../Objects/Marble";
 
-const COLOR = ["red","green","blue","orange","yellow","black","white"];
 const OFFSET = 18;
 const PADDING_LEFT = 20;
 const PADDING_TOP = 56;
@@ -123,10 +122,7 @@ export default class MarbleManager {
         if(marble){
             marble.setActive(true);
             marble.setVisible(true);
-            marble.updateColor(COLOR[colorCode]);
-            marble.setScale(0.3);
-            marble.body.setCircle(marble.width/3);
-            marble.body.setOffset(marble.width/6,marble.height/6);
+            marble.setDefaultSetting(marble.colorList[colorCode]);
 
             return marble;
         }
