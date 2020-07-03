@@ -19,6 +19,7 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
         this.scene.add.existing(this);
 
         scene.physics.add.existing(this);
+        this.setCollideWorldBounds(true);
     
         this.color = color;
 

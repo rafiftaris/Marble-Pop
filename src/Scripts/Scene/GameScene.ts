@@ -20,6 +20,7 @@ export default class GameScene extends Phaser.Scene {
             frameRate: 10,
             repeat: 0
         });
+        this.physics.world.setBounds(0,38,this.cameras.main.width,this.cameras.main.height-38);
     }
 
     create(): void {
@@ -37,13 +38,9 @@ export default class GameScene extends Phaser.Scene {
             }
         });
         this.add.existing(this.scoreText);
-
-        this.touchpad = new Touchpad.default(this);
-
-        this.physics.world.bounds.setSize(this.physics.world.bounds.width,500);
-        this.physics.world.bounds.setPosition(0,100);
         
         this.marbleManager = new MarbleManager(this);
+        this.touchpad = new Touchpad.default(this,this.marbleManager);
 
     }
 

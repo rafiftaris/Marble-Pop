@@ -2,7 +2,11 @@ import * as Phaser from "phaser";
 import Marble from "../Objects/Marble";
 
 const COLOR = ["red","green","blue","orange","yellow","black","white"];
-const PADDING = 18;
+const OFFSET = 18;
+const PADDING_LEFT = 20;
+const PADDING_TOP = 56;
+const TILE_WIDTH = 36;
+const TILE_HEIGHT = 30;
 
 type tilePosition = {x: number, y: number};
 type tileCoordinate = {row: number, column: number};
@@ -47,13 +51,21 @@ export default class MarbleManager {
             for(var i=0; i<8-(j%2); i++){
                 var random = Math.round(Math.random()*7);
 
-                this.marbleTiles[j][i] = new Marble(scene, 20+36*i+PADDING*(j%2),56+30*j,COLOR[random]);
+                this.marbleTiles[j][i] = this.getMarbleFromGroup(random);
+                this.marbleTiles[j][i].setPosition(PADDING_LEFT+TILE_WIDTH*i+OFFSET*(j%2),PADDING_TOP+TILE_HEIGHT*j);
+
             }
         }
     }
 
     getPosition(row: number, column: number): tilePosition{
-        return {x: 20+36*column+PADDING*(row%2), y: 56+30*row};
+        return {x: PADDING_LEFT+TILE_WIDTH*column+OFFSET*(row%2), y: PADDING_TOP+TILE_HEIGHT*row};
+    }
+
+    getCoordinate(x: number, y: number): tileCoordinate{
+        var row = Math.round((y-PADDING_TOP)/TILE_HEIGHT);
+        var col = Math.round((x-PADDING_LEFT-OFFSET*(row%2))/TILE_WIDTH);
+        return {row: row, column: col};
     }
 
     getNeighborsOf(row: number, column: number): tileCoordinate[] | false {
@@ -101,7 +113,23 @@ export default class MarbleManager {
         return neighbors;
     }
 
-    getMarble(coord: tileCoordinate): Marble{
+    getMarbleFromTile(coord: tileCoordinate): Marble{
         return this.marbleTiles[coord.row][coord.column];
+    }
+
+    getMarbleFromGroup(colorCode: number): Marble{
+        var marble: Marble = this.marbleGroup.get();
+      
+        if(marble){
+            marble.setActive(true);
+            marble.setVisible(true);
+            marble.updateColor(COLOR[colorCode]);
+            marble.setScale(0.3);
+            marble.body.setCircle(marble.width/3);
+            marble.body.setOffset(marble.width/6,marble.height/6);
+
+            return marble;
+        }
+        return null;
     }
 }
