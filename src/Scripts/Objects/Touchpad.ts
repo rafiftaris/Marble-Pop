@@ -16,49 +16,38 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
     private arrowGraphics: Phaser.GameObjects.Graphics;
     private marbleShoot: Marble;
     private marbleManager: MarbleManager;
-    private touchZone: Phaser.GameObjects.Zone;
-    
-    private onAim: boolean;
+    private gameOverLine: Phaser.Geom.Line;
+    private gameOverLineGraphics: Phaser.GameObjects.Graphics;
+        
+    public onAim: boolean;
 
     constructor(scene: Phaser.Scene, marbleManager: MarbleManager){
-        super(0,350,scene.cameras.main.width,100);
+        super(0,400,scene.cameras.main.width,100);
         this.marbleManager = marbleManager;
         
         var touchpadGraphics = scene.add.graphics({ fillStyle: { color: 0xef40c1 } });
         touchpadGraphics.fillRectShape(this);
 
-        this.arrowBody = new Phaser.Geom.Line(scene.cameras.main.width/2,350);
+        this.arrowBody = new Phaser.Geom.Line(scene.cameras.main.width/2,400);
         this.arrowGraphics = scene.add.graphics();
         this.arrowGraphics.setDepth(2);
         
         var random = Math.round(Math.random()*7);
         this.marbleShoot = this.marbleManager.getMarbleFromGroup(random);
         this.marbleShoot.setShootingMarbleSetting(scene, this.marbleShoot.colorList[random]);
-        
-
-        this.arrow = new Phaser.GameObjects.Image(scene,scene.cameras.main.width/2,350,"arrow");
+    
+        this.arrow = new Phaser.GameObjects.Image(scene,scene.cameras.main.width/2,400,"arrow");
         this.arrow.setScale(0.4);
         this.arrow.tint = 0x008000;
         this.arrow.depth = 2;
         scene.add.existing(this.arrow);
 
+        this.gameOverLine = new Phaser.Geom.Line(0,350,scene.cameras.main.width,350);
+        this.gameOverLineGraphics = scene.add.graphics();
+        this.gameOverLineGraphics.lineStyle(1, 0xff0000, 1);
+        this.gameOverLineGraphics.strokeLineShape(this.gameOverLine);
+
         this.pointer = scene.input.activePointer;
-        var me = this;
-        scene.input.on('pointerdown',function(){
-            me.startAim(scene);
-        },scene);
-
-        scene.input.on('pointermove',function(){
-            me.dragAim(scene);
-        },scene);
-
-        scene.input.on('pointerup',function(){
-            if(me.onAim){
-                me.onAim = false;
-                me.arrowGraphics.clear();
-                me.shootMarble(this);
-            }
-        },scene);
     }
 
     startAim(scene: Phaser.Scene): void{
@@ -82,17 +71,31 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
 
     shootMarble(scene: Phaser.Scene): void{
         var deltaX = (this.pointer.x-scene.cameras.main.width/2)*-1;
-        var deltaY = (this.pointer.y-350)*-1;
+        var deltaY = (this.pointer.y-400)*-1;
         var vectorLength = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
         this.marbleShoot.setVelocity((deltaX/vectorLength)*SHOOT_SPEED,(deltaY/vectorLength)*SHOOT_SPEED);
     }
 
     aimingMarble(scene: Phaser.Scene): void {
-        this.arrowBody.setTo(scene.cameras.main.width/2,350,this.pointer.x,this.pointer.y);
-        var angle = Math.atan2(this.pointer.y-350,this.pointer.x-scene.cameras.main.width/2);
+        this.arrowBody.setTo(scene.cameras.main.width/2,400,this.pointer.x,this.pointer.y);
+        var angle = Math.atan2(this.pointer.y-400,this.pointer.x-scene.cameras.main.width/2);
         this.arrow.setAngle(radToDeg(angle)-90);
         this.marbleShoot.setAngle(radToDeg(angle)-90);
         this.arrowGraphics.lineStyle(5, 0x008000, 1);
         this.arrowGraphics.strokeLineShape(this.arrowBody);
+    }
+
+    getMarbleShoot(): Marble{
+        return this.marbleShoot;
+    }
+
+    getArrowGraphic(): Phaser.GameObjects.Graphics{
+        return this.arrowGraphics;
+    }
+
+    resetMarbleShoot(scene: Phaser.Scene): void{
+        var random = Math.round(Math.random()*7);
+        this.marbleShoot.body.reset(scene.cameras.main.width/2,400);
+        this.marbleShoot.updateColor(this.marbleShoot.colorList[random]);
     }
 }

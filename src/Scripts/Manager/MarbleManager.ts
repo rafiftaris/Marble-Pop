@@ -52,6 +52,7 @@ export default class MarbleManager {
 
                 this.marbleTiles[j][i] = this.getMarbleFromGroup(random);
                 this.marbleTiles[j][i].setPosition(PADDING_LEFT+TILE_WIDTH*i+OFFSET*(j%2),PADDING_TOP+TILE_HEIGHT*j);
+                this.marbleTiles[j][i].setImmovable(true);
 
             }
         }
@@ -116,16 +117,49 @@ export default class MarbleManager {
         return this.marbleTiles[coord.row][coord.column];
     }
 
-    getMarbleFromGroup(colorCode: number): Marble{
+    getMarbleFromGroup(colorCode: number | string): Marble{
         var marble: Marble = this.marbleGroup.get();
       
         if(marble){
             marble.setActive(true);
             marble.setVisible(true);
-            marble.setDefaultSetting(marble.colorList[colorCode]);
+            if(typeof(colorCode) == "number"){
+                marble.setDefaultSetting(marble.colorList[colorCode]);
+            } else {
+                marble.setDefaultSetting(colorCode);
+            }
 
             return marble;
         }
         return null;
+    }
+
+    getMarbleGroup(): Phaser.Physics.Arcade.Group{
+        return this.marbleGroup;
+    }
+
+    getMarbleTiles(): Marble[][]{
+        return this.marbleTiles;
+    }
+
+    
+    putOnTiles(marble: Marble): void{
+        var coord = this.getCoordinate(marble.x, marble.y);
+        console.log(coord);
+        var position = this.getPosition(coord.row,coord.column);
+
+        this.marbleTiles[coord.row][coord.column] = this.getMarbleFromGroup(marble.getColor());
+        this.marbleTiles[coord.row][coord.column].setDefaultSetting(marble.getColor());
+        this.marbleTiles[coord.row][coord.column].setImmovable(true);
+        this.marbleTiles[coord.row][coord.column].setPosition(position.x, position.y);
+    }
+
+    checkGameOver(): boolean{
+        for(var i=0; i<8; i++){
+            if(this.marbleTiles[10][i] != null){
+                return true;
+            }
+        }
+        return false;
     }
 }

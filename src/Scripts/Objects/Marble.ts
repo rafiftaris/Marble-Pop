@@ -31,21 +31,26 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
         this.setScale(0.3);
         this.body.setCircle(this.width/3);
         this.body.setOffset(this.width/6,this.height/6);
+        this.setVelocity(0);
     }
     
     setShootingMarbleSetting(scene: Phaser.Scene, color: string): void{
-        this.setPosition(scene.cameras.main.width/2,350);
+        this.setPosition(scene.cameras.main.width/2,400);
         this.depth = 1;
         this.setBounce(1,1);
         this.setCollideWorldBounds(true);
 
         this.setDefaultSetting(color);
-        this.setPosition(scene.cameras.main.width/2,350);
+        this.setPosition(scene.cameras.main.width/2,400);
     }
 
-    updateColor(color: string){
+    updateColor(color: string): void{
         this.color = color;
         this.tint = COLOR_MAP[color];
+    }
+
+    getColor(): string{
+        return this.color;
     }
 
     pop(): void{

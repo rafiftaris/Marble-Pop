@@ -5,7 +5,7 @@ import PreloadScene from "./Scripts/Scene/PreloadScene";
 type GameConfig = Phaser.Types.Core.GameConfig;
 
 const DEFAULT_WIDTH = 292;
-const DEFAULT_HEIGHT = 450;
+const DEFAULT_HEIGHT = 500;
 
 const config: GameConfig = {
   title: "Marble Pop",
