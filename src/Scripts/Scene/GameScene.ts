@@ -8,6 +8,7 @@ export default class GameScene extends Phaser.Scene {
 
     private touchpad: Touchpad.default;
     private marbleManager: MarbleManager;
+    private topBoundary: Phaser.GameObjects.Rectangle;
 
     private panel: Phaser.GameObjects.Image;
     private gameOverText: Phaser.GameObjects.Text;
@@ -30,7 +31,7 @@ export default class GameScene extends Phaser.Scene {
             frameRate: 10,
             repeat: 0
         });
-        this.physics.world.setBounds(0,38,this.cameras.main.width,this.cameras.main.height-38);
+        this.physics.world.setBounds(0,0,this.cameras.main.width,this.cameras.main.height);
     }
 
     create(): void {
@@ -38,9 +39,13 @@ export default class GameScene extends Phaser.Scene {
         this.disableGameplayInput = false;
         this.panelDisplayed = false;
 
+        this.topBoundary = new Phaser.GameObjects.Rectangle(this,this.cameras.main.width/2,19,this.cameras.main.width,38);
+        this.add.existing(this.topBoundary);
+        this.physics.add.existing(this.topBoundary,true);
+                
         this.scoreText = new Phaser.GameObjects.Text(this,0,0,"Score: " + this.score.toString(), {
-            fontFamily: 'Arial',
-            fontSize: '15px',
+            fontFamily: 'Courier',
+            fontSize: '22px',
             color: '#000',
             stroke: '#000',
             align: 'center',
@@ -51,6 +56,7 @@ export default class GameScene extends Phaser.Scene {
                 bottom: 10
             }
         });
+        this.scoreText.setDepth(1);
         this.add.existing(this.scoreText);
         
         this.marbleManager = new MarbleManager(this);
@@ -60,7 +66,7 @@ export default class GameScene extends Phaser.Scene {
         this.panel.setScale(0.4,0.5);
         this.gameOverText = new Phaser.GameObjects.Text(this,(this.cameras.main.width/2)-75,(this.cameras.main.height/2)-75,
             "Game Over\n\nPress button to restart", {
-            fontFamily: 'Arial',
+            fontFamily: 'Courier',
             fontSize: '15px',
             color: '#fff',
             stroke: '#fff',
@@ -76,19 +82,16 @@ export default class GameScene extends Phaser.Scene {
         
         var me = this;
         this.input.on('pointerdown',function(){
-            // console.log('pointerdown');
             if(me.isGameOver || me.disableGameplayInput){ return; }
             me.touchpad.startAim(me);
         },this);
 
         this.input.on('pointermove',function(){
-            // console.log('pointermove');
             if(me.isGameOver || me.disableGameplayInput){ return; }
             me.touchpad.dragAim(me);
         },this);
 
         this.input.on('pointerup',function(){
-            // console.log('pointerup');
             if(me.isGameOver || me.disableGameplayInput){ return; }
             if(me.touchpad.onAim){
                 me.touchpad.onAim = false;
@@ -102,6 +105,16 @@ export default class GameScene extends Phaser.Scene {
             if(!me.isGameOver){ return; }
             me.scene.start("GameScene");
         },this);
+        
+        this.restartButton.on('pointerover',function(){
+            if(!me.isGameOver){ return; }
+            this.restartButton.setScale(0.45);
+        },this);
+
+        this.restartButton.on('pointerout',function(){
+            if(!me.isGameOver){ return; }
+            this.restartButton.setScale(0.35);
+        },this);
 
     }
 
@@ -110,11 +123,11 @@ export default class GameScene extends Phaser.Scene {
             return;
         }
         this.physics.world.collide(this.touchpad.getMarbleShoot(),this.marbleManager.getMarbleGroup(),this.marbleSnap,null,this);
+        this.physics.world.collide(this.touchpad.getMarbleShoot(),this.topBoundary,this.marbleSnap,null,this);
         
         this.isGameOver = this.marbleManager.checkGameOver();
         if(this.isGameOver){
             this.gameOver();
-            this.handleGameOverInput();
         }
         
     }
@@ -122,6 +135,9 @@ export default class GameScene extends Phaser.Scene {
     marbleSnap(): void{
         var marble = this.touchpad.getMarbleShoot();
         this.marbleManager.putOnTiles(marble);
+        this.score += this.marbleManager.popCluster();
+        this.scoreText.text = "Score: " + this.score.toString();
+
         this.touchpad.resetMarbleShoot(this);
         this.disableGameplayInput = false;
     }
@@ -135,10 +151,6 @@ export default class GameScene extends Phaser.Scene {
         this.add.existing(this.restartButton);
         this.panelDisplayed = true;
         this.disableGameplayInput = true;
-    }
-
-    handleGameOverInput(): void{
-        
     }
 }
   

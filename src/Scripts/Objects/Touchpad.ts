@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import Marble from "../Objects/Marble";
 import MarbleManager from "../Manager/MarbleManager";
 
-const TOUCH_BOUNDARY = 360;
+const TOUCH_BOUNDARY = 410;
 const SHOOT_SPEED = 300;
 
 function radToDeg(rad: number): number{
@@ -11,6 +11,8 @@ function radToDeg(rad: number): number{
 
 export default class Touchpad extends Phaser.Geom.Rectangle{
     private pointer: Phaser.Input.Pointer;
+    private aimLine: Phaser.Geom.Line;
+    private aimLineGraphic: Phaser.GameObjects.Graphics;
     private arrow: Phaser.GameObjects.Image;
     private arrowBody: Phaser.Geom.Line;
     private arrowGraphics: Phaser.GameObjects.Graphics;
@@ -32,7 +34,7 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         this.arrowGraphics = scene.add.graphics();
         this.arrowGraphics.setDepth(2);
         
-        var random = Math.round(Math.random()*7);
+        var random = Math.floor(Math.random()*7);
         this.marbleShoot = this.marbleManager.getMarbleFromGroup(random);
         this.marbleShoot.setShootingMarbleSetting(scene, this.marbleShoot.colorList[random]);
     
@@ -47,11 +49,16 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         this.gameOverLineGraphics.lineStyle(1, 0xff0000, 1);
         this.gameOverLineGraphics.strokeLineShape(this.gameOverLine);
 
+        this.aimLine = new Phaser.Geom.Line(scene.cameras.main.width/2,400);
+        this.aimLineGraphic = scene.add.graphics();
+        this.aimLineGraphic.setDepth(2);
+
         this.pointer = scene.input.activePointer;
     }
 
     startAim(scene: Phaser.Scene): void{
         if(this.pointer.y < TOUCH_BOUNDARY){
+            this.arrowGraphics.clear();
             return;
         }
         this.onAim = true;
@@ -65,6 +72,7 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
             this.aimingMarble(scene);
             
         } else {
+            this.arrowGraphics.clear();
             this.onAim = false;
         }
     }
@@ -94,7 +102,7 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
     }
 
     resetMarbleShoot(scene: Phaser.Scene): void{
-        var random = Math.round(Math.random()*7);
+        var random = Math.floor(Math.random() * 7);
         this.marbleShoot.body.reset(scene.cameras.main.width/2,400);
         this.marbleShoot.updateColor(this.marbleShoot.colorList[random]);
     }
