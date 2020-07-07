@@ -29,7 +29,7 @@ const config: GameConfig = {
   backgroundColor: "#FAC0EB",
   scene: [PreloadScene, GameScene],
 };
-export class StarfallGame extends Phaser.Game {
+export class MarblePopGame extends Phaser.Game {
   constructor(config: GameConfig) {
     super(config);
     
@@ -37,5 +37,5 @@ export class StarfallGame extends Phaser.Game {
   
 }
 window.onload = () => {
-  var game = new StarfallGame(config);
+  var game = new MarblePopGame(config);
 };

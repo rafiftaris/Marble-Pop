@@ -35,10 +35,12 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create(): void {
+        // Setting up flags
         this.isGameOver = false;
         this.disableGameplayInput = false;
         this.panelDisplayed = false;
 
+        // Top Boundary and Score text
         this.topBoundary = new Phaser.GameObjects.Rectangle(this,this.cameras.main.width/2,19,this.cameras.main.width,38);
         this.add.existing(this.topBoundary);
         this.physics.add.existing(this.topBoundary,true);
@@ -59,9 +61,11 @@ export default class GameScene extends Phaser.Scene {
         this.scoreText.setDepth(1);
         this.add.existing(this.scoreText);
         
+        // Marble manager and touchpad
         this.marbleManager = new MarbleManager(this);
-        this.touchpad = new Touchpad.default(this,this.marbleManager);
+        this.touchpad = new Touchpad.default(this);
 
+        // Panel for game over
         this.panel = new Phaser.GameObjects.Image(this,this.cameras.main.width/2,this.cameras.main.height/2,"panel");
         this.panel.setScale(0.4,0.5);
         this.gameOverText = new Phaser.GameObjects.Text(this,(this.cameras.main.width/2)-75,(this.cameras.main.height/2)-75,
@@ -80,6 +84,7 @@ export default class GameScene extends Phaser.Scene {
         this.restartButton.setScale(0.35);
         this.restartButton.setInteractive();
         
+        // Input handling
         var me = this;
         this.input.on('pointerdown',function(){
             if(me.isGameOver || me.disableGameplayInput){ return; }
@@ -95,7 +100,6 @@ export default class GameScene extends Phaser.Scene {
             if(me.isGameOver || me.disableGameplayInput){ return; }
             if(me.touchpad.onAim){
                 me.touchpad.onAim = false;
-                me.touchpad.getArrowGraphic().clear();
                 me.touchpad.shootMarble(me);
                 me.disableGameplayInput = true;
             }
@@ -132,6 +136,9 @@ export default class GameScene extends Phaser.Scene {
         
     }
 
+    /**
+     * Snap marble to the marble tiles
+     */
     marbleSnap(): void{
         var marble = this.touchpad.getMarbleShoot();
         this.marbleManager.putOnTiles(marble);
@@ -142,6 +149,9 @@ export default class GameScene extends Phaser.Scene {
         this.disableGameplayInput = false;
     }
 
+    /**
+     * Set game over state
+     */
     gameOver(): void{
         if(this.panelDisplayed){
             return;

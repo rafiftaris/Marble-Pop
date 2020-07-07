@@ -1,14 +1,24 @@
 import * as Phaser from "phaser";
 import Marble from "../Objects/Marble";
-import MarbleManager from "../Manager/MarbleManager";
 
 const TOUCH_BOUNDARY = 410;
 const SHOOT_SPEED = 300;
 
+/**
+ * Radian to Degree converter
+ * @param rad: radian
+ * @return: degree of the radian
+ */
 function radToDeg(rad: number): number{
     return rad * (180/Math.PI);
 }
 
+/**
+ * Touchpad for handling input zone and aiming marble.
+ * 
+ * Its components consist of pointer, aim line, arrow,
+ * shooting marble, and game over line.
+ */
 export default class Touchpad extends Phaser.Geom.Rectangle{
     private pointer: Phaser.Input.Pointer;
     private aimLine: Phaser.Geom.Line;
@@ -17,45 +27,51 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
     private arrowBody: Phaser.Geom.Line;
     private arrowGraphics: Phaser.GameObjects.Graphics;
     private marbleShoot: Marble;
-    private marbleManager: MarbleManager;
     private gameOverLine: Phaser.Geom.Line;
     private gameOverLineGraphics: Phaser.GameObjects.Graphics;
         
     public onAim: boolean;
 
-    constructor(scene: Phaser.Scene, marbleManager: MarbleManager){
+    constructor(scene: Phaser.Scene){
         super(0,400,scene.cameras.main.width,100);
-        this.marbleManager = marbleManager;
         
         var touchpadGraphics = scene.add.graphics({ fillStyle: { color: 0xef40c1 } });
         touchpadGraphics.fillRectShape(this);
-
-        this.arrowBody = new Phaser.Geom.Line(scene.cameras.main.width/2,400);
-        this.arrowGraphics = scene.add.graphics();
-        this.arrowGraphics.setDepth(2);
         
+        // Marble Shooter
         var random = Math.floor(Math.random()*7);
-        this.marbleShoot = this.marbleManager.getMarbleFromGroup(random);
+        this.marbleShoot = new Marble(scene,0,0,"red");
         this.marbleShoot.setShootingMarbleSetting(scene, this.marbleShoot.colorList[random]);
     
+        // Arrow Components
         this.arrow = new Phaser.GameObjects.Image(scene,scene.cameras.main.width/2,400,"arrow");
         this.arrow.setScale(0.4);
         this.arrow.tint = 0x008000;
         this.arrow.depth = 2;
         scene.add.existing(this.arrow);
+        this.arrowBody = new Phaser.Geom.Line(scene.cameras.main.width/2,400);
+        this.arrowGraphics = scene.add.graphics();
+        this.arrowGraphics.setDepth(2);
 
+        // Game over borderline
         this.gameOverLine = new Phaser.Geom.Line(0,350,scene.cameras.main.width,350);
         this.gameOverLineGraphics = scene.add.graphics();
         this.gameOverLineGraphics.lineStyle(1, 0xff0000, 1);
         this.gameOverLineGraphics.strokeLineShape(this.gameOverLine);
 
+        // Aim line
         this.aimLine = new Phaser.Geom.Line(scene.cameras.main.width/2,400);
         this.aimLineGraphic = scene.add.graphics();
         this.aimLineGraphic.setDepth(2);
 
+        // Pointer
         this.pointer = scene.input.activePointer;
     }
 
+    /**
+     * Start aiming when pointer is just pressed down
+     * @param scene: Game scene 
+     */
     startAim(scene: Phaser.Scene): void{
         if(this.pointer.y < TOUCH_BOUNDARY){
             this.arrowGraphics.clear();
@@ -65,8 +81,11 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         this.aimingMarble(scene);
     }
 
+    /**
+     * Drag aim position after aiming started
+     * @param scene: Game scene 
+     */
     dragAim(scene: Phaser.Scene): void{
-
         if(this.onAim && this.pointer.y > TOUCH_BOUNDARY){
             this.arrowGraphics.clear();
             this.aimingMarble(scene);
@@ -77,13 +96,22 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         }
     }
 
+    /**
+     * Shoot marble based on aim direction after pointer is up
+     * @param scene: Game scene 
+     */
     shootMarble(scene: Phaser.Scene): void{
+        this.arrowGraphics.clear();
         var deltaX = (this.pointer.x-scene.cameras.main.width/2)*-1;
         var deltaY = (this.pointer.y-400)*-1;
         var vectorLength = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
         this.marbleShoot.setVelocity((deltaX/vectorLength)*SHOOT_SPEED,(deltaY/vectorLength)*SHOOT_SPEED);
     }
 
+    /**
+     * Adjust shooting marble and arrow components rotation when aiming
+     * @param scene: Game scene 
+     */
     aimingMarble(scene: Phaser.Scene): void {
         this.arrowBody.setTo(scene.cameras.main.width/2,400,this.pointer.x,this.pointer.y);
         var angle = Math.atan2(this.pointer.y-400,this.pointer.x-scene.cameras.main.width/2);
@@ -93,14 +121,18 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         this.arrowGraphics.strokeLineShape(this.arrowBody);
     }
 
+    /**
+     * Get current shooting marble
+     * @return: Shooting marble
+     */
     getMarbleShoot(): Marble{
         return this.marbleShoot;
     }
 
-    getArrowGraphic(): Phaser.GameObjects.Graphics{
-        return this.arrowGraphics;
-    }
-
+    /**
+     * Reset shooting marble back to aiming position after the marble attached to the group
+     * @param scene: Game scene
+     */
     resetMarbleShoot(scene: Phaser.Scene): void{
         var random = Math.floor(Math.random() * 7);
         this.marbleShoot.body.reset(scene.cameras.main.width/2,400);

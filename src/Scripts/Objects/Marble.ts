@@ -10,6 +10,9 @@ const COLOR_MAP = {
     "white": 0xffffff
 };
 
+/**
+ * Marble sprite configuration
+ */
 export default class Marble extends Phaser.Physics.Arcade.Sprite {
     private color: string;
     public colorList: string[] = ["red", "green", "blue", "orange", "yellow", "black", "white"];
@@ -25,6 +28,10 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
         this.setDefaultSetting(color);
     }
 
+    /**
+     * Set default setting for marble (used for marble in puzzle tiles)
+     * @param color: Color of the marble
+     */
     setDefaultSetting(color: string): void{
         this.color = color;
 
@@ -37,6 +44,11 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
         this.setTexture("marble",0);
     }
     
+    /**
+     * Set setting for shooting marble
+     * @param scene: Game scene
+     * @param color: Color of the marble
+     */
     setShootingMarbleSetting(scene: Phaser.Scene, color: string): void{
         this.setPosition(scene.cameras.main.width/2,400);
         this.depth = 1;
@@ -47,15 +59,26 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
         this.setPosition(scene.cameras.main.width/2,400);
     }
 
+    /**
+     * Change color on marble
+     * @param color: new color
+     */
     updateColor(color: string): void{
         this.color = color;
         this.tint = COLOR_MAP[color];
     }
 
+    /**
+     * Get color of marble
+     * @returns: color in string
+     */
     getColor(): string{
         return this.color;
     }
 
+    /**
+     * Pop marble
+     */
     pop(): void{
         this.play('pop');
         this.on('animationcomplete',function(){
@@ -65,6 +88,9 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
         });
     }
 
+    /**
+     * Drop marble
+     */
     drop(): void{
         this.setVelocity(0,50);
     }
