@@ -82,10 +82,8 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
     pop(): void{
         this.play('pop');
         this.on('animationcomplete',function(){
-            this.setVisible(false);
-            this.setActive(false);
-            this.setPosition(0,0);
-        });
+            this.hide();
+        }, this);
     }
 
     /**
@@ -93,5 +91,21 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
      */
     drop(): void{
         this.setVelocity(0,50);
+        this.scene.time.delayedCall(
+            750,
+            this.hide,
+            null, this
+        )
+    }
+
+    /**
+     * Hide marble
+     */
+    hide(): void{
+        console.log('hide');
+        this.setVisible(false);
+        this.setActive(false);
+        this.setPosition(0,0);
+        this.setVelocity(0);
     }
 }

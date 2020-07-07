@@ -67,8 +67,8 @@ export default class GameScene extends Phaser.Scene {
 
         // Panel for game over
         this.panel = new Phaser.GameObjects.Image(this,this.cameras.main.width/2,this.cameras.main.height/2,"panel");
-        this.panel.setScale(0.4,0.5);
-        this.gameOverText = new Phaser.GameObjects.Text(this,(this.cameras.main.width/2)-75,(this.cameras.main.height/2)-75,
+        this.panel.setScale(0.5,0.5);
+        this.gameOverText = new Phaser.GameObjects.Text(this,(this.cameras.main.width/2)-100,(this.cameras.main.height/2)-75,
             "Game Over\n\nPress button to restart", {
             fontFamily: 'Courier',
             fontSize: '15px',
@@ -141,8 +141,7 @@ export default class GameScene extends Phaser.Scene {
      */
     marbleSnap(): void{
         var marble = this.touchpad.getMarbleShoot();
-        this.marbleManager.putOnTiles(marble);
-        this.score += this.marbleManager.popCluster();
+        this.score += this.marbleManager.putOnTiles(marble);
         this.scoreText.text = "Score: " + this.score.toString();
 
         this.touchpad.resetMarbleShoot(this);

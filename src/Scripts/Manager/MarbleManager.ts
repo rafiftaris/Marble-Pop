@@ -16,8 +16,7 @@ type tileCoordinate = {row: number, column: number};
 export default class MarbleManager {
     private marbleGroup: Phaser.Physics.Arcade.Group;
     private marbleTiles: Marble[][];
-    private cluster: tileCoordinate[];
-    private clusterNeighbor: tileCoordinate[];
+    private neighboringMarbles: tileCoordinate[];
 
     constructor(scene: Phaser.Scene){
         // Init marble group
@@ -47,8 +46,7 @@ export default class MarbleManager {
             }
         }
 
-        this.cluster = [];
-        this.clusterNeighbor = [];
+        this.neighboringMarbles = [];
         this.generateRandom(scene);
     }
 
@@ -94,90 +92,6 @@ export default class MarbleManager {
             col=6;
         }
         return {row: row, column: col};
-    }
-
-    /**
-     * Get existing neigbors' coordinate of current marble, represented in
-     * tile coordinate (row,column)
-     * @param row: Current marble row
-     * @param column: Current marble column
-     * @returns: tile coordinate (row,column) if current marble coordinate is correct, false otherwise
-     */
-    getNeighborsOf(row: number, column: number): tileCoordinate[] | false {
-        if(row<0 || row>this.marbleTiles.length-1){
-            return false;
-        }
-        if(column<0 || column>this.marbleTiles[row].length-1){
-            return false;
-        }
-
-        var neighbors = [];
-
-        // Left and right neighbors
-        if(column>0 && this.getMarbleFromTile({row: row, column: column-1})){
-            neighbors.push({row: row, column: column-1});
-        }
-        if(column<this.marbleTiles[row].length-1 && this.getMarbleFromTile({row: row, column: column+1})){
-            neighbors.push({row: row, column: column+1});
-        }
-
-        // Above neighbors
-        if(row!=0){
-            //Exact above neighbor
-            if(((row%2==0 && column<this.marbleTiles[row].length-1) || row%2==1) && this.getMarbleFromTile({row: row-1, column: column})){
-                neighbors.push({row: row-1, column: column});
-            }
-            //Extra neighbor
-            if(row%2==1 && this.getMarbleFromTile({row: row-1, column: column+1})){
-                neighbors.push({row: row-1, column: column+1})
-            } else if (column!=0  && this.getMarbleFromTile({row: row-1, column: column-1})){
-                neighbors.push({row: row-1, column: column-1});
-            }
-        }
-        
-        // Below neighbors
-        if(row!=this.marbleTiles.length-1){
-            //Exact below neighbor
-            if(((row%2==0 && column<this.marbleTiles[row].length-1) || row%2==1)  && this.getMarbleFromTile({row: row+1, column: column})){
-                neighbors.push({row: row+1, column: column});
-            }
-            //Extra neighbor
-            if(row%2==1  && this.getMarbleFromTile({row: row+1, column: column+1})){
-                neighbors.push({row: row+1, column: column+1})
-            } else if (column!=0  && this.getMarbleFromTile({row: row+1, column: column-1})){
-                neighbors.push({row: row+1, column: column-1});
-            }
-        }
-
-        return neighbors;
-    }
-
-    /**
-     * Get cluster of marbles with the same color.
-     * Cluster of marbles is saved in this.cluster variable
-     * @param coord: current marble coordinate (row,column)
-     */
-    checkCluster(coord: tileCoordinate): void{
-        this.cluster.push(coord);
-        let checkedColor = this.getMarbleFromTile(coord).getColor();
-        console.log(checkedColor);
-
-        let currentMarble = this.getMarbleFromTile(coord);
-        let neighbors = <tileCoordinate[]>this.getNeighborsOf(coord.row,coord.column);
-        console.log(neighbors);
-        currentMarble.checked = true;
-
-        neighbors.forEach(coordinate => {
-            let neighborMarble = this.getMarbleFromTile(coordinate);
-            if(neighborMarble==null || neighborMarble.checked){ 
-                return; 
-            }
-            if(neighborMarble.getColor()==checkedColor){
-                this.checkCluster(coordinate);
-            } else {
-                this.clusterNeighbor.push(coordinate);
-            }
-        });
     }
 
     /**
@@ -227,10 +141,132 @@ export default class MarbleManager {
     }
     
     /**
+     * Get existing neigbors' coordinate of current marble, represented in
+     * tile coordinate (row,column)
+     * @param row: Current marble row
+     * @param column: Current marble column
+     * @returns: tile coordinate (row,column) if current marble coordinate is correct, false otherwise
+     */
+    getNeighborsOf(row: number, column: number): tileCoordinate[] | false {
+        if(row<0 || row>this.marbleTiles.length-1){
+            return false;
+        }
+        if(column<0 || column>this.marbleTiles[row].length-1){
+            return false;
+        }
+
+        var neighbors = [];
+
+        // Left and right neighbors
+        if(column>0 && this.getMarbleFromTile({row: row, column: column-1})){
+            neighbors.push({row: row, column: column-1});
+        }
+        if(column<this.marbleTiles[row].length-1 && this.getMarbleFromTile({row: row, column: column+1})){
+            neighbors.push({row: row, column: column+1});
+        }
+
+        // Above neighbors
+        if(row!=0){
+            //Exact above neighbor
+            if(((row%2==0 && column<this.marbleTiles[row].length-1) || row%2==1) && this.getMarbleFromTile({row: row-1, column: column})){
+                neighbors.push({row: row-1, column: column});
+            }
+            //Extra neighbor
+            if(row%2==1){
+                if(this.getMarbleFromTile({row: row-1, column: column+1})){
+                    neighbors.push({row: row-1, column: column+1})
+                }
+            } else if (column!=0  && this.getMarbleFromTile({row: row-1, column: column-1})){
+                neighbors.push({row: row-1, column: column-1});
+            }
+        }
+        
+        // Below neighbors
+        if(row!=this.marbleTiles.length-1){
+            //Exact below neighbor
+            if(((row%2==0 && column<this.marbleTiles[row].length-1) || row%2==1)  && this.getMarbleFromTile({row: row+1, column: column})){
+                neighbors.push({row: row+1, column: column});
+            }
+            //Extra neighbor
+            if(row%2==1){
+                if(this.getMarbleFromTile({row: row+1, column: column+1})){
+                    neighbors.push({row: row+1, column: column+1})
+                }
+            } else if (column!=0  && this.getMarbleFromTile({row: row+1, column: column-1})){
+                neighbors.push({row: row+1, column: column-1});
+            }
+        }
+
+        return neighbors;
+    }
+
+
+    /**
+     * Get cluster of marbles with the same color.
+     * Cluster of marbles is saved in this.cluster variable
+     * @param coord: current marble coordinate (row,column)
+     * @param sameColor: true for check pop, false for check drop
+     * @returns: cluster of marble
+     */
+    checkCluster(coord: tileCoordinate, sameColor: boolean): tileCoordinate[]{
+        let coordStack: tileCoordinate[] = [];
+        let foundCluster: tileCoordinate[] = [];
+        let checkedMarbles: Marble[] = [];
+        coordStack.push(coord);
+        console.log("check",coord);
+        let firstMarble = this.getMarbleFromTile(coord);
+        if(!firstMarble){
+            return [];
+        }
+        let checkedColor = firstMarble.getColor();
+
+        // Check every marble until stack empty
+        while(coordStack.length>0){
+            let currentCoord = coordStack.pop();
+            let currentMarble = this.getMarbleFromTile(currentCoord);
+            if(currentMarble.checked){
+                continue;
+            }
+            currentMarble.checked = true;
+            checkedMarbles.push(currentMarble);
+
+            // Found root marble for check drop
+            if(currentCoord.row==0 && !sameColor){
+                foundCluster.push(currentCoord);
+                return foundCluster;
+            }
+
+            if(currentMarble.getColor()==checkedColor || !sameColor){
+                foundCluster.push(currentCoord);
+                let neighbors = <tileCoordinate[]>this.getNeighborsOf(currentCoord.row,currentCoord.column);
+    
+                neighbors.forEach(coordinate => {
+                    let neighborMarble = this.getMarbleFromTile(coordinate);
+                    if(!neighborMarble.checked){
+                        coordStack.push(coordinate);
+                    }
+                });
+            } else { // check pop but different color
+                this.neighboringMarbles.push(currentCoord);
+            }
+        }
+        
+        // Reset checked flag
+        while(checkedMarbles.length>0){
+            checkedMarbles.pop().checked = false;
+        }
+        console.log('found',foundCluster);
+
+        return foundCluster;
+        
+    }
+
+    /**
      * Put marble on tiles based on current position (x,y) of the marble
      * @param marble: marble that wants to be put into tiles
+     * @returns: score calculation based on how many marbles are popped
      */
-    putOnTiles(marble: Marble): void{
+    putOnTiles(marble: Marble): number{
         var coord = this.getCoordinate(marble.x, marble.y);
         var position = this.getPosition(coord.row,coord.column);
 
@@ -239,56 +275,77 @@ export default class MarbleManager {
         this.marbleTiles[coord.row][coord.column].setImmovable(true);
         this.marbleTiles[coord.row][coord.column].setPosition(position.x, position.y);
         
-        this.checkCluster(coord);
-        // console.log(this.cluster.length);
+        let foundCluster = this.checkCluster(coord,true);
+        return this.popCluster(foundCluster);
     }
 
     /**
      * Pop cluster after the cluster has been found
+     * @param foundCluster: cluster found after check
      * @returns: score calculation based on how many marbles are popped
      */
-    popCluster(): number{
+    popCluster(foundCluster: tileCoordinate[]): number{
         let score = 0;
         // Check if cluster needs to be popped
-        if(this.cluster.length>=3){
-            this.cluster.forEach(coordinate => {
-                console.log("pop",coordinate);
+        if(foundCluster.length>=3){
+            foundCluster.forEach(coordinate => {
                 let currentMarble = this.getMarbleFromTile(coordinate);
                 currentMarble.pop();
                 this.marbleTiles[coordinate.row][coordinate.column] = null;
             });
-            score = 10*3+15*(this.cluster.length-3);
+            score = 10*3+15*(foundCluster.length-3);
+            score += this.dropMarble();
         } else {
-            this.cluster.forEach(coordinate => {
+            foundCluster.forEach(coordinate => {
                 let currentMarble = this.getMarbleFromTile(coordinate);
-                console.log(currentMarble.getColor());
                 currentMarble.checked = false;
             });
-        }
-        // Drop marbles affected by pop
-        // this.clusterNeighbor.forEach(coordinate => {
-        //     let neighbors = <tileCoordinate[]>this.getNeighborsOf(coordinate.row,coordinate.column);
-        //     if(neighbors.length==0){
-        //         this.dropMarble(coordinate);
-        //     }
-            
-        // });
+        }        
 
-        // Reset cluster and cluster neighbor array
-        this.cluster = [];
-        this.clusterNeighbor = [];
+        // Reset neighboring marbles
+        this.neighboringMarbles = [];
+        for(var row=0;row<this.marbleTiles.length;row++){
+            for(var col=0;col<this.marbleTiles[row].length;col++){
+                if(this.marbleTiles[row][col]){
+                    this.marbleTiles[row][col].checked = false;
+                }
+            }
+        }
         return score;
     }
 
     /**
      * Drop marble affected by pop
-     * @param coordinate: coordinate (row,column) of dropped marble
+     * @returns: score for dropping marbles
      */
-    dropMarble(coordinate: tileCoordinate): void{
-        console.log("drop",coordinate);
-        let currentMarble = this.getMarbleFromTile(coordinate);
-        currentMarble.drop();
-        // this.marbleTiles[coordinate.row][coordinate.column] = null;
+    dropMarble(): number{
+        let score = 0;
+        this.neighboringMarbles.forEach(neighborCoord => {
+            let dropCluster = this.checkCluster(neighborCoord, false);
+            
+            // Check if cluster is floating
+            let floatingCluster = true;
+            for(var i=dropCluster.length-1;i>=0;i--){
+                if(dropCluster[i].row==0){
+                    floatingCluster = false;
+                    break;
+                }
+            }
+            console.log("floating " + floatingCluster);
+            console.log("dropCluster", dropCluster);
+            // Drop floating cluster
+            if(floatingCluster){
+                dropCluster.forEach(dropCoord => {
+                    console.log("drop",dropCoord);
+                    let currentMarble = this.getMarbleFromTile(dropCoord);
+                    currentMarble.drop();
+                    this.marbleTiles[dropCoord.row][dropCoord.column] = null;
+                });
+                score += 10*dropCluster.length;
+            }
+        });
+        this.neighboringMarbles = [];
+        return score;
     }
 
     /**
