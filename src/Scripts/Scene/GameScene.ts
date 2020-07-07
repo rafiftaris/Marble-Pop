@@ -126,6 +126,7 @@ export default class GameScene extends Phaser.Scene {
         if(this.isGameOver){
             return;
         }
+        this.touchpad.pointer = this.input.activePointer;
         this.physics.world.collide(this.touchpad.getMarbleShoot(),this.marbleManager.getMarbleGroup(),this.marbleSnap,null,this);
         this.physics.world.collide(this.touchpad.getMarbleShoot(),this.topBoundary,this.marbleSnap,null,this);
         

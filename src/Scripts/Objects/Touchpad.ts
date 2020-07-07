@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import Marble from "../Objects/Marble";
 
 const TOUCH_BOUNDARY = 410;
-const SHOOT_SPEED = 300;
+const SHOOT_SPEED = 500;
 
 /**
  * Radian to Degree converter
@@ -20,15 +20,14 @@ function radToDeg(rad: number): number{
  * shooting marble, and game over line.
  */
 export default class Touchpad extends Phaser.Geom.Rectangle{
-    private pointer: Phaser.Input.Pointer;
+    public pointer: Phaser.Input.Pointer;
     private aimLine: Phaser.Geom.Line;
-    private aimLineGraphic: Phaser.GameObjects.Graphics;
+    private lineGraphics: Phaser.GameObjects.Graphics;
     private arrow: Phaser.GameObjects.Image;
     private arrowBody: Phaser.Geom.Line;
     private arrowGraphics: Phaser.GameObjects.Graphics;
     private marbleShoot: Marble;
     private gameOverLine: Phaser.Geom.Line;
-    private gameOverLineGraphics: Phaser.GameObjects.Graphics;
         
     public onAim: boolean;
 
@@ -55,14 +54,14 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
 
         // Game over borderline
         this.gameOverLine = new Phaser.Geom.Line(0,350,scene.cameras.main.width,350);
-        this.gameOverLineGraphics = scene.add.graphics();
-        this.gameOverLineGraphics.lineStyle(1, 0xff0000, 1);
-        this.gameOverLineGraphics.strokeLineShape(this.gameOverLine);
+        this.lineGraphics = scene.add.graphics();
+        this.lineGraphics.lineStyle(1, 0xff0000, 1);
+        this.lineGraphics.strokeLineShape(this.gameOverLine);
 
         // Aim line
-        this.aimLine = new Phaser.Geom.Line(scene.cameras.main.width/2,400);
-        this.aimLineGraphic = scene.add.graphics();
-        this.aimLineGraphic.setDepth(2);
+        // this.aimLine = new Phaser.Geom.Line(scene.cameras.main.width/2,400);
+        // this.lineGraphics.lineStyle(1,0x008000,1);
+        // this.lineGraphics.setDepth(2);
 
         // Pointer
         this.pointer = scene.input.activePointer;
