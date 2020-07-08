@@ -55,7 +55,7 @@ export default class MarbleManager {
      * @param scene: Game Scene
      */
     generateRandom(scene: Phaser.Scene): void{
-        for(var j=0; j<0; j++){
+        for(var j=0; j<5; j++){
 
             // One less marble on odd rows
             for(var i=0; i<8-(j%2); i++){
