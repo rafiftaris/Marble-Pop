@@ -268,6 +268,7 @@ export default class MarbleManager {
      */
     putOnTiles(marble: Marble): number{
         var coord = this.getCoordinate(marble.x, marble.y);
+        if(coord.row < 0) { coord.row = 0; }
         var position = this.getPosition(coord.row,coord.column);
 
         this.marbleTiles[coord.row][coord.column] = this.getMarbleFromGroup(marble.getColor());

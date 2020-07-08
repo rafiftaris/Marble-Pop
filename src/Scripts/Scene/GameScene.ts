@@ -63,7 +63,7 @@ export default class GameScene extends Phaser.Scene {
         
         // Marble manager and touchpad
         this.marbleManager = new MarbleManager(this);
-        this.touchpad = new Touchpad.default(this);
+        this.touchpad = new Touchpad.default(this, this.marbleManager);
 
         // Panel for game over
         this.panel = new Phaser.GameObjects.Image(this,this.cameras.main.width/2,this.cameras.main.height/2,"panel");
