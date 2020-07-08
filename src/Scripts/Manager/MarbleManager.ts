@@ -11,6 +11,18 @@ type tilePosition = {x: number, y: number};
 type tileCoordinate = {row: number, column: number};
 
 /**
+ * Customized rounding. Ceil number if n>.8, floor otherwise.
+ * @param n: number that want to be rounded
+ * @returns: rounded number
+ */
+function customRound(n: number): number{
+    var h = (n * 10) % 10;
+    return h >= 8
+        ? Math.ceil(n)
+        : Math.floor(n);
+}
+
+/**
  * Marble manager to manage marble groups and marble puzzle tiling
  */
 export default class MarbleManager {
@@ -86,7 +98,7 @@ export default class MarbleManager {
      * @returns: tile coordinate (row,column)
      */
     getCoordinate(x: number, y: number): tileCoordinate{
-        var row = Math.floor((y-PADDING_TOP)/TILE_HEIGHT);
+        var row = customRound((y-PADDING_TOP)/TILE_HEIGHT);
         var col = Math.floor((x-OFFSET*(row%2))/TILE_WIDTH);
         if(row%2==1 && col==7){
             col=6;

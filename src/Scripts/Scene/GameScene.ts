@@ -128,7 +128,6 @@ export default class GameScene extends Phaser.Scene {
             return;
         }
         this.touchpad.pointer = this.input.activePointer;
-        var marble = this.touchpad.getMarbleShoot();
         this.physics.world.collide(this.touchpad.getMarbleShoot(),this.marbleManager.getMarbleGroup(),this.marbleSnap,null,this);
         this.physics.world.collide(this.touchpad.getMarbleShoot(),this.topBoundary,this.marbleSnap,null,this);
         
@@ -144,6 +143,7 @@ export default class GameScene extends Phaser.Scene {
      */
     marbleSnap(): void{
         var marble = this.touchpad.getMarbleShoot();
+        marble.setVelocity(0);
         this.score += this.marbleManager.putOnTiles(marble);
         this.scoreText.text = "Score: " + this.score.toString();
 
