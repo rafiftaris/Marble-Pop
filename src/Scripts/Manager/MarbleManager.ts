@@ -17,7 +17,7 @@ type tileCoordinate = {row: number, column: number};
  */
 function customRound(n: number): number{
     var h = (n * 10) % 10;
-    return h >= 8
+    return h >= 7
         ? Math.ceil(n)
         : Math.floor(n);
 }
@@ -277,7 +277,9 @@ export default class MarbleManager {
      * @returns: score calculation based on how many marbles are popped
      */
     putOnTiles(marble: Marble): number{
+        // console.log((marble.y-PADDING_TOP)/TILE_HEIGHT,(marble.x-OFFSET*(((marble.y-PADDING_TOP)/TILE_HEIGHT)%2))/TILE_WIDTH)
         var coord = this.getCoordinate(marble.x, marble.y);
+        // console.log("calculated coord",coord);
         if(coord.row < 0) { coord.row = 0; }
         var position = this.getPosition(coord.row,coord.column);
 
