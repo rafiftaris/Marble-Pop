@@ -98,7 +98,6 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         }
         this.onAim = true;
         this.aimingMarble(scene);
-        console.log(this.marbleShoot.depth);
     }
 
     /**

@@ -213,7 +213,6 @@ export default class MarbleManager {
         let foundCluster: tileCoordinate[] = [];
         let checkedMarbles: Marble[] = [];
         coordStack.push(coord);
-        console.log("check",coord);
         let firstMarble = this.getMarbleFromTile(coord);
         if(!firstMarble){
             return [];
@@ -255,7 +254,6 @@ export default class MarbleManager {
         while(checkedMarbles.length>0){
             checkedMarbles.pop().checked = false;
         }
-        console.log('found',foundCluster);
 
         return foundCluster;
         
@@ -332,12 +330,9 @@ export default class MarbleManager {
                     break;
                 }
             }
-            console.log("floating " + floatingCluster);
-            console.log("dropCluster", dropCluster);
             // Drop floating cluster
             if(floatingCluster){
                 dropCluster.forEach(dropCoord => {
-                    console.log("drop",dropCoord);
                     let currentMarble = this.getMarbleFromTile(dropCoord);
                     currentMarble.drop();
                     this.marbleTiles[dropCoord.row][dropCoord.column] = null;

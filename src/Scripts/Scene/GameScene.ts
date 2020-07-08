@@ -68,6 +68,7 @@ export default class GameScene extends Phaser.Scene {
         // Panel for game over
         this.panel = new Phaser.GameObjects.Image(this,this.cameras.main.width/2,this.cameras.main.height/2,"panel");
         this.panel.setScale(0.5,0.5);
+        this.panel.setDepth(4);
         this.gameOverText = new Phaser.GameObjects.Text(this,(this.cameras.main.width/2)-100,(this.cameras.main.height/2)-75,
             "Game Over\n\nPress button to restart", {
             fontFamily: 'Courier',
@@ -76,11 +77,12 @@ export default class GameScene extends Phaser.Scene {
             stroke: '#fff',
             align: 'center',
         });
+        this.gameOverText.setDepth(4);
         this.restartButton = new Phaser.Physics.Arcade.Image(this,this.cameras.main.width/2,(this.cameras.main.height/2)+30,"replay");
         this.physics.add.existing(this.restartButton);
         this.restartButton.body.setCircle(this.restartButton.body.width/2.4);
         this.restartButton.body.setOffset(18,18);
-        this.restartButton.setDepth(3);
+        this.restartButton.setDepth(4);
         this.restartButton.setScale(0.35);
         this.restartButton.setInteractive();
         
@@ -119,7 +121,6 @@ export default class GameScene extends Phaser.Scene {
             if(!me.isGameOver){ return; }
             this.restartButton.setScale(0.35);
         },this);
-
     }
 
     update(): void {
@@ -127,6 +128,7 @@ export default class GameScene extends Phaser.Scene {
             return;
         }
         this.touchpad.pointer = this.input.activePointer;
+        var marble = this.touchpad.getMarbleShoot();
         this.physics.world.collide(this.touchpad.getMarbleShoot(),this.marbleManager.getMarbleGroup(),this.marbleSnap,null,this);
         this.physics.world.collide(this.touchpad.getMarbleShoot(),this.topBoundary,this.marbleSnap,null,this);
         

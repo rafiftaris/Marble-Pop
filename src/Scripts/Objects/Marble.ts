@@ -104,7 +104,6 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
      * Hide marble
      */
     hide(): void{
-        console.log('hide');
         this.setVisible(false);
         this.setActive(false);
         this.setPosition(0,0);
