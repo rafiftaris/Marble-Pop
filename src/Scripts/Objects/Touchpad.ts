@@ -179,7 +179,7 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         var coord = this.marbleManager.getCoordinate(x,y);
 
         while(y>=38){
-            if(coord.row<11){
+            if(coord.row<11 && coord.row>0){
                 if(this.marbleManager.getMarbleFromTile(coord)){
                     marbleMet = true;
                 }
