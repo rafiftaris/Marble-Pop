@@ -35,11 +35,13 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
     
     private aimDotGroup: Phaser.GameObjects.Group;
     public onAim: boolean;
+    private aimAssistEnabled: boolean = true;
 
     constructor(scene: Phaser.Scene, marbleManager: MarbleManager){
         super(0,400,scene.cameras.main.width,100);
         this.marbleManager = marbleManager;
         MIDPOINT_X = scene.cameras.main.width/2;
+        this.aimAssistEnabled = true;
 
         var touchpadGraphics = scene.add.graphics({ fillStyle: { color: 0xef40c1 } });
         touchpadGraphics.fillRectShape(this);
@@ -85,6 +87,22 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
 
         // Pointer
         this.pointer = scene.input.activePointer;
+    }
+
+    /**
+     * Set aim assist state (enabled/disabled)
+     * @param bool: input boolean
+     */
+    setAimAssist(bool: boolean): void{
+        this.aimAssistEnabled = bool;
+    }
+
+    /**
+     * Get aim assist current state
+     * @returns: Aim assist state
+     */
+    getAimAssist(): boolean{
+        return this.aimAssistEnabled;
     }
 
     /**
@@ -145,7 +163,9 @@ export default class Touchpad extends Phaser.Geom.Rectangle{
         this.arrowGraphics.lineStyle(5, 0x008000, 1);
         this.arrowGraphics.strokeLineShape(this.arrowBody);
 
-        this.createAimLine(deltaX,deltaY);
+        if(this.aimAssistEnabled){
+            this.createAimLine(deltaX,deltaY);
+        }
     }
 
     /**

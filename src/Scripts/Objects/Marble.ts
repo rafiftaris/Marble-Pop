@@ -79,10 +79,13 @@ export default class Marble extends Phaser.Physics.Arcade.Sprite {
 
     /**
      * Pop marble
+     * @param sfxEnabled: true to play sfx
      */
-    pop(): void{
+    pop(sfxEnabled: boolean): void{
+        if(sfxEnabled){
+            this.scene.sound.play('blop');
+        }
         this.play('pop');
-        this.scene.sound.play('blop');
         this.on('animationcomplete',function(){
             this.hide();
         }, this);

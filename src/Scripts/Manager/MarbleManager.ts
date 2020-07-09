@@ -29,8 +29,11 @@ export default class MarbleManager {
     private marbleGroup: Phaser.Physics.Arcade.Group;
     private marbleTiles: Marble[][];
     private neighboringMarbles: tileCoordinate[];
+    private sfxEnabled: boolean = true;
 
     constructor(scene: Phaser.Scene){
+        this.sfxEnabled = true;
+
         // Init marble group
         this.marbleGroup = new Phaser.Physics.Arcade.Group(scene.physics.world,scene,{
             classType: Marble,
@@ -60,6 +63,22 @@ export default class MarbleManager {
 
         this.neighboringMarbles = [];
         this.generateRandom(scene);
+    }
+
+    /**
+     * Set sfx status to enabled if true
+     * @param bool: input boolean
+     */
+    enableSfx(bool: boolean): void{
+        this.sfxEnabled = bool;
+    }
+
+    /**
+     * Get sfx status
+     * @returns: boolean
+     */
+    isSfxEnabled(): boolean{
+        return this.sfxEnabled;
     }
 
     /**
@@ -303,7 +322,7 @@ export default class MarbleManager {
         if(foundCluster.length>=3){
             foundCluster.forEach(coordinate => {
                 let currentMarble = this.getMarbleFromTile(coordinate);
-                currentMarble.pop();
+                currentMarble.pop(this.sfxEnabled);
                 this.marbleTiles[coordinate.row][coordinate.column] = null;
             });
             score = 10*3+15*(foundCluster.length-3);

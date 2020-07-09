@@ -1,6 +1,8 @@
 import * as Phaser from "phaser";
 import * as Touchpad from "../Objects/Touchpad";
 import MarbleManager from "../Manager/MarbleManager";
+import GameOverPanel from "../Objects/GameOverPanel";
+import PausePanel from "../Objects/PausePanel";
 
 export default class GameScene extends Phaser.Scene {
     private score: number = 0;
@@ -10,13 +12,15 @@ export default class GameScene extends Phaser.Scene {
     private marbleManager: MarbleManager;
     private topBoundary: Phaser.GameObjects.Rectangle;
 
-    private panel: Phaser.GameObjects.Image;
-    private gameOverText: Phaser.GameObjects.Text;
-    private restartButton: Phaser.Physics.Arcade.Image;
+    private gameOverPanel: GameOverPanel;
+    private pauseButton: Phaser.GameObjects.Image;
+    private pausePanel: PausePanel;
 
     private isGameOver: boolean = false;
+    private isPaused: boolean = false;
+    private sfxOn: boolean = true;
     private disableGameplayInput: boolean = false;
-    private panelDisplayed: boolean = false;
+    private gameOverPanelDisplayed: boolean = false;
 
 
     constructor() {
@@ -37,8 +41,10 @@ export default class GameScene extends Phaser.Scene {
     create(): void {
         // Setting up flags
         this.isGameOver = false;
+        this.isPaused = false;
         this.disableGameplayInput = false;
-        this.panelDisplayed = false;
+        this.gameOverPanelDisplayed = false;
+        this.sfxOn = true;
 
         // Top Boundary and Score text
         this.topBoundary = new Phaser.GameObjects.Rectangle(this,this.cameras.main.width/2,19,this.cameras.main.width,38);
@@ -64,27 +70,15 @@ export default class GameScene extends Phaser.Scene {
         // Marble manager and touchpad
         this.marbleManager = new MarbleManager(this);
         this.touchpad = new Touchpad.default(this, this.marbleManager);
-
-        // Panel for game over
-        this.panel = new Phaser.GameObjects.Image(this,this.cameras.main.width/2,this.cameras.main.height/2,"panel");
-        this.panel.setScale(0.5,0.5);
-        this.panel.setDepth(4);
-        this.gameOverText = new Phaser.GameObjects.Text(this,(this.cameras.main.width/2)-100,(this.cameras.main.height/2)-75,
-            "Game Over\n\nPress button to restart", {
-            fontFamily: 'Courier',
-            fontSize: '15px',
-            color: '#fff',
-            stroke: '#fff',
-            align: 'center',
-        });
-        this.gameOverText.setDepth(4);
-        this.restartButton = new Phaser.Physics.Arcade.Image(this,this.cameras.main.width/2,(this.cameras.main.height/2)+30,"replay");
-        this.physics.add.existing(this.restartButton);
-        this.restartButton.body.setCircle(this.restartButton.body.width/2.4);
-        this.restartButton.body.setOffset(18,18);
-        this.restartButton.setDepth(4);
-        this.restartButton.setScale(0.35);
-        this.restartButton.setInteractive();
+        
+        // Game over and pause panel
+        this.gameOverPanel = new GameOverPanel(this);
+        this.pauseButton = new Phaser.GameObjects.Image(this,this.cameras.main.width-25,20,"pause");
+        this.pauseButton.setScale(0.15);
+        this.pauseButton.setDepth(3);
+        this.pauseButton.setInteractive();
+        this.add.existing(this.pauseButton);
+        this.pausePanel = new PausePanel(this);
         
         // Input handling
         var me = this;
@@ -107,19 +101,55 @@ export default class GameScene extends Phaser.Scene {
             }
         },this);
 
-        this.restartButton.on('pointerdown',function(){
+        this.gameOverPanel.restartButton.on('pointerdown',function(){
             if(!me.isGameOver){ return; }
             me.scene.start("GameScene");
         },this);
         
-        this.restartButton.on('pointerover',function(){
+        this.gameOverPanel.restartButton.on('pointerover',function(){
             if(!me.isGameOver){ return; }
             this.restartButton.setScale(0.45);
         },this);
 
-        this.restartButton.on('pointerout',function(){
+        this.gameOverPanel.restartButton.on('pointerout',function(){
             if(!me.isGameOver){ return; }
             this.restartButton.setScale(0.35);
+        },this);
+
+        this.pauseButton.on('pointerover',function(){
+            me.pauseButton.setScale(0.17);
+        },this);
+        this.pauseButton.on('pointerout',function(){
+            me.pauseButton.setScale(0.15);
+        },this);
+        this.pauseButton.on('pointerdown',function(){
+            me.pausePanel.show();
+            me.isPaused = true;
+            me.disableGameplayInput = true;
+        },this);
+
+        this.pausePanel.aimAssistButton.on('pointerdown',function(){
+            if(me.touchpad.getAimAssist()){
+                me.pausePanel.aimAssistButton.setTexture("x");
+                me.touchpad.setAimAssist(false);
+            } else {
+                me.pausePanel.aimAssistButton.setTexture("v");
+                me.touchpad.setAimAssist(true);
+            }
+        },this);
+        this.pausePanel.sfxButton.on('pointerdown',function(){
+            if(me.marbleManager.isSfxEnabled()){
+                me.pausePanel.sfxButton.setTexture("x");
+                me.marbleManager.enableSfx(false);
+            } else {
+                me.pausePanel.sfxButton.setTexture("sound");
+                me.marbleManager.enableSfx(true);
+            }
+        },this);
+        this.pausePanel.continueButton.on('pointerdown',function(){
+            me.pausePanel.hide();
+            me.isPaused = false;
+            me.disableGameplayInput = false;
         },this);
     }
 
@@ -155,13 +185,11 @@ export default class GameScene extends Phaser.Scene {
      * Set game over state
      */
     gameOver(): void{
-        if(this.panelDisplayed){
+        if(this.gameOverPanelDisplayed){
             return;
         }
-        this.add.existing(this.panel);
-        this.add.existing(this.gameOverText);
-        this.add.existing(this.restartButton);
-        this.panelDisplayed = true;
+        this.gameOverPanel.addToScene(this);
+        this.gameOverPanelDisplayed = true;
         this.disableGameplayInput = true;
     }
 }
